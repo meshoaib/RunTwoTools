@@ -25,6 +25,6 @@ This package includes a C++ class called MiniSelector that contains the basic ma
 
 Once you have an analyzer, modify the CMSSW configuration file in the "python" directory so that it will run your analysis, and execute the program using cmsRun.  I included a sample config file called miniExampleConfig.py that runs the ExampleAnalyzer, so you can use that as a starting point.
 
-If you write helper functions for your analyzer (ex: a calculation of the razor variables), please include it in the file MiniSelector.cc if possible so that it can be used by others once you commit your changes.
+If you write helper functions for your analyzer (ex: a calculation of the razor variables), please include them in the file MiniSelector.cc if possible so that they can be used by others once you commit your changes.
 
 If you write useful pieces of code in your CMSSW config file (ex: you write b-tagging code for a variety of jet algorithms) and want them to be usable by others, please put them in separate files and copy them into the python/tools directory.  I've put an example piece of code in there (clustering of AK5 jets from the packed PF candidates) that you can import into your own analysis.  
