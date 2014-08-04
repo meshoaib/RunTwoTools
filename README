@@ -1,3 +1,30 @@
 Basic framework for analyzing miniAOD on the grid using CRAB3.
 
-Setup:
+Setup (on the CERN lxplus6 machines): 
+
+Log in to lxplus and initialize a new CMSSW area:
+    ssh -Y <username>@lxplus.cern.ch
+    export SCRAM_ARCH=slc6_amd64_gcc481
+    cmsrel CMSSW_7_0_6_patch1
+    cd CMSSW_7_0_6_patch1/src
+    cmsenv
+
+Clone the repository and install:
+    git clone https://github.com/duanders/RunTwoTools
+    cd RunTwoTools
+    scram b
+    cmsenv
+
+To run the example analyzer: 
+    cmsRun MiniSelector/python/miniExampleConfig.py
+It should produce a file called example.root containing some pointless information.
+
+General idea:
+
+This package includes a C++ class called MiniSelector that contains the basic machinery for analyzing miniAOD events.  To write an analyzer for your own physics analysis, just inherit from this class (using the example in ExampleAnalyzer.cc as a template).  Fill in the "analyze" method to define what your analyzer does.  If you need object collections besides the ones included by default, you can add them (the ExampleAnalyzer class shows an example of doing this).  
+
+Once you have an analyzer, modify the CMSSW configuration file in the "python" directory so that it will run your analysis, and execute the program using cmsRun.  I included a sample config file called miniExampleConfig.py that runs the ExampleAnalyzer, so you can use that as a starting point.
+
+If you write helper functions for your analyzer (e.g. a calculation of the razor variables), please include it in the file MiniSelector.cc if possible so that it can be used by others once you commit your changes.
+
+If you write useful pieces of code in your CMSSW config file and want them to be usable by others, please put them in separate files and copy them into the python/tools directory.  I've put an example piece of code in there (clustering of AK5 jets from the packed PF candidates) that you can import into your own analysis.  
