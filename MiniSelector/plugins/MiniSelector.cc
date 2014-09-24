@@ -8,7 +8,7 @@ Description: Base class for miniAOD analysis with CRAB
 
 // ********************************************************************************//
 // ********************************************************************************//
-// ------ PLACE USEFUL HELPER FUNCTIONS IN THIS FILE FOR EVERYONE TO USE --------- //
+// ------ PLACE USEFUL HELPER FUNCTIONS IN THIS FILE ----------------------------- //
 // ********************************************************************************//
 // ********************************************************************************//
 
@@ -24,7 +24,6 @@ vector<TLorentzVector> MiniSelector::getHemispheres(vector<TLorentzVector> jets)
 
     //step 1: store all possible partitions of the input jets
     int j_count;
-    //this loop looks like witchcraft but it basically just counts in binary
     for(int i = 1; i < nComb-1; i++){ //note we omit the trivial hemisphere combinations (0 and nComb-1)
         TLorentzVector j_temp1, j_temp2;
         int itemp = i;
@@ -98,22 +97,45 @@ bool MiniSelector::isAncestor(const reco::Candidate* ancestor, const reco::Candi
 // constructors and destructor
 MiniSelector::MiniSelector(const edm::ParameterSet& iConfig): 
     //get inputs from config file
-    vtxToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
-    muonToken_(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
-    electronToken_(consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
-    tauToken_(consumes<pat::TauCollection>(iConfig.getParameter<edm::InputTag>("taus"))),
-    photonToken_(consumes<pat::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons"))),
-    jetToken_(consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("jets"))),
-    fatjetToken_(consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("fatjets"))),
-    pfToken_(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCands"))),
-    prunedGenToken_(consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("pruned"))),
-    packedGenToken_(consumes<edm::View<pat::PackedGenParticle> >(iConfig.getParameter<edm::InputTag>("packed"))),
-    genJetToken_(consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("genjets"))),
-    triggerBits_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("bits"))),
-    triggerObjects_(consumes<pat::TriggerObjectStandAloneCollection>(iConfig.getParameter<edm::InputTag>("objects"))),
-    triggerPrescales_(consumes<pat::PackedTriggerPrescales>(iConfig.getParameter<edm::InputTag>("prescales"))),     
+    verticesToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
+    muonsToken_(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
+    electronsToken_(consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
+    tausToken_(consumes<pat::TauCollection>(iConfig.getParameter<edm::InputTag>("taus"))),
+    photonsToken_(consumes<pat::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons"))),
+    jetsToken_(consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("jets"))),
+    jetsAK8Token_(consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("jetsAK8"))),
+    packedPFCandsToken_(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPfCands"))),
+    prunedGenParticlesToken_(consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("prunedGenParticles"))),
+    packedGenParticlesToken_(consumes<edm::View<pat::PackedGenParticle> >(iConfig.getParameter<edm::InputTag>("packedGenParticles"))),
+    genJetsToken_(consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("genJets"))),
+    triggerBitsToken_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("triggerBits"))),
+    triggerObjectsToken_(consumes<pat::TriggerObjectStandAloneCollection>(iConfig.getParameter<edm::InputTag>("triggerObjects"))),
+    triggerPrescalesToken_(consumes<pat::PackedTriggerPrescales>(iConfig.getParameter<edm::InputTag>("triggerPrescales"))),     
     metToken_(consumes<pat::METCollection>(iConfig.getParameter<edm::InputTag>("mets"))),
-    metFilterBits_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("metBits")))
+    metFilterBitsToken_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("metFilterBits"))),
+    lheInfoToken_(consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("lheInfo"))),
+    genInfoToken_(consumes<GenEventInfoProduct>(iConfig.getParameter<edm::InputTag>("genInfo"))),
+    puInfoToken_(consumes<std::vector<PileupSummaryInfo> >(iConfig.getParameter<edm::InputTag>("puInfo"))),
+    hcalNoiseInfoToken_(consumes<HcalNoiseSummary>(iConfig.getParameter<edm::InputTag>("hcalNoiseInfo"))),
+    secondaryVerticesToken_(consumes<vector<reco::VertexCompositePtrCandidate> >(iConfig.getParameter<edm::InputTag>("secondaryVertices"))),
+    rhoAllToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("rhoAll"))),
+    rhoFastjetAllToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("rhoFastjetAll"))),
+    rhoFastjetAllCaloToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("rhoFastjetAllCalo"))),
+    rhoFastjetCentralCaloToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("rhoFastjetCentralCalo"))),
+    rhoFastjetCentralChargedPileUpToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("rhoFastjetCentralChargedPileUp"))),
+    rhoFastjetCentralNeutralToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("rhoFastjetCentralNeutral"))),
+    beamSpotToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
+    ebRecHitsToken_(consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(iConfig.getParameter<edm::InputTag>("ebRecHits"))),
+    eeRecHitsToken_(consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(iConfig.getParameter<edm::InputTag>("eeRecHits"))),
+    esRecHitsToken_(consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(iConfig.getParameter<edm::InputTag>("esRecHits"))),
+    ebeeClustersToken_(consumes<vector<reco::CaloCluster> >(iConfig.getParameter<edm::InputTag>("ebeeClusters"))),
+    esClustersToken_(consumes<vector<reco::CaloCluster> >(iConfig.getParameter<edm::InputTag>("esClusters"))),
+    conversionsToken_(consumes<vector<reco::Conversion> >(iConfig.getParameter<edm::InputTag>("conversions"))),
+    singleLegConversionsToken_(consumes<vector<reco::Conversion> >(iConfig.getParameter<edm::InputTag>("singleLegConversions"))),
+    gedGsfElectronCoresToken_(consumes<vector<reco::GsfElectronCore> >(iConfig.getParameter<edm::InputTag>("gedGsfElectronCores"))),
+    gedPhotonCoresToken_(consumes<vector<reco::PhotonCore> >(iConfig.getParameter<edm::InputTag>("gedPhotonCores"))),
+    superClustersToken_(consumes<vector<reco::SuperCluster> >(iConfig.getParameter<edm::InputTag>("superClusters"))),
+    lostTracksToken_(consumes<vector<pat::PackedCandidate> >(iConfig.getParameter<edm::InputTag>("lostTracks")))
 {
 }
 
@@ -124,22 +146,46 @@ MiniSelector::~MiniSelector()
 // member functions
 
 void MiniSelector::loadEvent(const edm::Event& iEvent){
-    iEvent.getByToken(triggerBits_, triggerBits);
-    iEvent.getByToken(triggerObjects_, triggerObjects);
-    iEvent.getByToken(triggerPrescales_, triggerPrescales);
-    iEvent.getByToken(metFilterBits_, metFilterBits);
-    iEvent.getByToken(vtxToken_, vertices);
-    iEvent.getByToken(pfToken_, pfs);
-    iEvent.getByToken(muonToken_, muons);
-    iEvent.getByToken(electronToken_, electrons);
-    iEvent.getByToken(photonToken_, photons);
-    iEvent.getByToken(tauToken_, taus);
-    iEvent.getByToken(jetToken_, jets);
-    iEvent.getByToken(fatjetToken_, fatjets);
+    iEvent.getByToken(triggerBitsToken_, triggerBits);
+    iEvent.getByToken(triggerObjectsToken_, triggerObjects);
+    iEvent.getByToken(triggerPrescalesToken_, triggerPrescales);
+    iEvent.getByToken(metFilterBitsToken_, metFilterBits);
+    iEvent.getByToken(verticesToken_, vertices);
+    iEvent.getByToken(packedPFCandsToken_, packedPFCands);
+    iEvent.getByToken(muonsToken_, muons);
+    iEvent.getByToken(electronsToken_, electrons);
+    iEvent.getByToken(photonsToken_, photons);
+    iEvent.getByToken(tausToken_, taus);
+    iEvent.getByToken(jetsToken_, jets);
+    iEvent.getByToken(jetsAK8Token_, jetsAK8);
     iEvent.getByToken(metToken_, mets);
-    iEvent.getByToken(prunedGenToken_,pruned);
-    iEvent.getByToken(packedGenToken_,packed);
-    iEvent.getByToken(genJetToken_,genjets);
+    iEvent.getByToken(prunedGenParticlesToken_,prunedGenParticles);
+    iEvent.getByToken(packedGenParticlesToken_,packedGenParticles);
+    iEvent.getByToken(genJetsToken_,genJets);
+    iEvent.getByToken(lheInfoToken_, lheInfo);
+    iEvent.getByToken(genInfoToken_,genInfo);
+    iEvent.getByToken(puInfoToken_,puInfo);
+    iEvent.getByToken(hcalNoiseInfoToken_,hcalNoiseInfo);
+    iEvent.getByToken(secondaryVerticesToken_,secondaryVertices);
+    iEvent.getByToken(rhoAllToken_,rhoAll);
+    iEvent.getByToken(rhoFastjetAllToken_,rhoFastjetAll);
+    iEvent.getByToken(rhoFastjetAllCaloToken_,rhoFastjetAllCalo);
+    iEvent.getByToken(rhoFastjetCentralCaloToken_,rhoFastjetCentralCalo);
+    iEvent.getByToken(rhoFastjetCentralChargedPileUpToken_,rhoFastjetCentralChargedPileUp);
+    iEvent.getByToken(rhoFastjetCentralNeutralToken_,rhoFastjetCentralNeutral);
+    iEvent.getByToken(beamSpotToken_,beamSpot);
+    iEvent.getByToken(ebRecHitsToken_,ebRecHits);
+    iEvent.getByToken(eeRecHitsToken_,eeRecHits);
+    iEvent.getByToken(esRecHitsToken_,esRecHits);
+    iEvent.getByToken(ebeeClustersToken_,ebeeClusters);
+    iEvent.getByToken(esClustersToken_,esClusters);
+    iEvent.getByToken(conversionsToken_,conversions);
+    iEvent.getByToken(singleLegConversionsToken_,singleLegConversions);
+    iEvent.getByToken(gedGsfElectronCoresToken_,gedGsfElectronCores);
+    iEvent.getByToken(gedPhotonCoresToken_, gedPhotonCores);
+    iEvent.getByToken(superClustersToken_,superClusters);
+    iEvent.getByToken(lostTracksToken_,lostTracks);
+
 }   
 
 //------ Method called for each event ------//

@@ -12,11 +12,12 @@ process.load("Configuration.EventContent.EventContent_cff")
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         #'/store/mc/Spring14miniaod/SMS-T1tttt_2J_mGl-1500_mLSP-100_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/0A59FC95-330F-E411-94EB-E0CB4E29C4CA.root' #PU20, T1tttt
-        ' /store/mc/Spring14miniaod/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/003E832C-8AFC-E311-B7AA-002590596490.root' #PU20, TTBar
-        #'/store/results/top/StoreResults/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/USER/Spring14dr_PU_S14_POSTLS170_V6AN1_miniAOD706p1_814812ec83fce2f620905d2bb30e9100-v2/00000/0012F41F-FA17-E411-A1FF-0025905A48B2.root' #PU40, TTBar
+        #' /store/mc/Spring14miniaod/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/003E832C-8AFC-E311-B7AA-002590596490.root' #PU20, TTBar
+        #'root://xrootd-cms.infn.it//store/mc/Spring14miniaod/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/003E832C-8AFC-E311-B7AA-002590596490.root' #PU20, TTbar
+        '/store/results/top/StoreResults/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/USER/Spring14dr_PU_S14_POSTLS170_V6AN1_miniAOD706p1_814812ec83fce2f620905d2bb30e9100-v2/00000/0012F41F-FA17-E411-A1FF-0025905A48B2.root' #PU40, TTBar
     )
 )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 #TFileService for output (currently output of "ad-hoc" root files via CRAB3 is not supported)
 process.TFileService = cms.Service("TFileService", 
@@ -41,6 +42,10 @@ process.load('RunTwoTools.MiniSelector.tools.ak4PFPuppiJetSequence')
 process.load('RunTwoTools.MiniSelector.tools.ak8PFPuppiJetSequence')
 from RecoJets.Configuration.RecoGenJets_cff import ak8GenJets
 process.ak8GenJets = ak8GenJets.clone(src = 'packedGenParticles')
+
+from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsCHS
+process.chs = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV"))
+process.ak8PFJetsCHS = ak8PFJetsCHS.clone(src = 'chs')
 
 #------ Analyzer ------#
 
@@ -69,7 +74,10 @@ process.analyzer = cms.EDAnalyzer('RazorJetAnalyzer',
 
     puppiJets = cms.InputTag("ak4PFPuppiJets"),
     puppiJetsAk8 = cms.InputTag("ak8PFPuppiJets"),
-    fatGenJets = cms.InputTag("ak8GenJets")
+    fatGenJets = cms.InputTag("ak8GenJets"),
+    puppiPfs = cms.InputTag("puppiPFCandidates"),
+
+    fatjetsAll = cms.InputTag("ak8PFJetsCHS")
 
 )
 
@@ -83,4 +91,6 @@ process.p = cms.Path(
         process.ak4PFPuppiJetSequence *
         process.ak8PFPuppiJetSequence *
         process.ak8GenJets *
+        process.chs *
+        process.ak8PFJetsCHS *
         process.analyzer)

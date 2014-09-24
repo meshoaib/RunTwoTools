@@ -1,17 +1,14 @@
-#crab config file for generic MiniSelector job
-#to use: change requestName, psetName, outputFiles, and inputDataset to desired values
-
 from WMCore.Configuration import Configuration
 config = Configuration()
 
 config.section_("General")
-config.General.requestName = 'puppiTest_QCD40_slope0p03_try3'
+config.General.requestName = 'testRazorAnalysis'
 config.General.workArea = 'crabMiniAOD'
 
 config.section_("JobType")
 config.JobType.pluginName = 'Analysis'
-config.JobType.psetName = 'python/razorJetConfig.py'
-config.JobType.outputFiles = ['razorJetAnalysis.root']
+config.JobType.psetName = 'python/testRazorAnalysis.py'
+config.JobType.outputFiles = ['daisyMint.root']
 
 config.section_("Data")
 #25ns scenario
@@ -20,8 +17,8 @@ config.section_("Data")
 #config.Data.inputDataset = '/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/Spring14miniaod-PU20bx25_POSTLS170_V5-v1/MINIAODSIM'
 
 #50ns scenario
-#config.Data.inputDataset = '/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/StoreResults-Spring14dr_PU_S14_POSTLS170_V6AN1_miniAOD706p1_814812ec83fce2f620905d2bb30e9100-v2/USER'
-config.Data.inputDataset = '/QCD_Pt-15to3000_Tune4C_Flat_13TeV_pythia8/xuchen-Spring14dr-PU_S14_POSTLS170_V6AN1-miniAOD706p1_t2-814812ec83fce2f620905d2bb30e9100/USER'
+config.Data.inputDataset = '/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/StoreResults-Spring14dr_PU_S14_POSTLS170_V6AN1_miniAOD706p1_814812ec83fce2f620905d2bb30e9100-v2/USER'
+#config.Data.inputDataset = '/QCD_Pt-15to3000_Tune4C_Flat_13TeV_pythia8/xuchen-Spring14dr-PU_S14_POSTLS170_V6AN1-miniAOD706p1_t2-814812ec83fce2f620905d2bb30e9100/USER'
 #config.Data.inputDataset = '/SMS-T1tttt_2J_mGl-1500_mLSP-100_Tune4C_13TeV-madgraph-tauola/duanders-Spring14dr-PU_S14_POSTLS170_V6AN1-miniAOD706p1-814812ec83fce2f620905d2bb30e9100/USER'
 
 #config.Data.dbsUrl = 'global'
